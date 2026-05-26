@@ -1,3 +1,11 @@
+--------MicroPython
+pip install esptool
+esptool flash_id
+esptool erase_flash
+esptool --baud 460800 write_flash 0x1000 "ścieżka pliku bin" 
+mpremote cp "C:\Users\jakub\Desktop\main.py" :
+mpremote reset
+
 ------NodeRed
 sudo dnf update && sudo dnf upgrade -y
 sudo dnf upgrade -y
