@@ -91,7 +91,7 @@ WIFI_PASSWORD = "Admin2003"
 MQTT_BROKER = "broker.hivemq.com"
 MQTT_PORT = 1883
 MQTT_CLIENT_ID = "esp32-bme280"
-MQTT_TOPIC = "PK/JZ"
+MQTT_TOPIC = "PK/JZiKR"
 
 
 def connect_wifi(timeout_ms=15000, retries=3):

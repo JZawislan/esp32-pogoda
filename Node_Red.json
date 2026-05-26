@@ -12,7 +12,7 @@
         "type": "mqtt in",
         "z": "8e56d7d544d99517",
         "name": "",
-        "topic": "PK/JZ",
+        "topic": "PK/JZiKR",
         "qos": "2",
         "datatype": "auto-detect",
         "broker": "0511b09d9898d135",
