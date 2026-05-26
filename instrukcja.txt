@@ -1,0 +1,28 @@
+------NodeRed
+sudo dnf update && sudo dnf upgrade -y
+sudo dnf upgrade -y
+sudo dnf install -y curl gcc-c++ make
+curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+sudo dnf install -y nodejs
+node -v
+npm -v
+sudo npm install -g --unsafe-perm node-red
+node-red
+ 
+-------InfluxDB
+ 
+sudo dnf install moby-engine docker-compose -y 
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+ 
+sudo docker run -d \
+  --name influxdb2 \
+  --publish 8086:8086 \
+  --mount type=volume,source=influxdb2-data,target=/var/lib/influxdb2 \
+  --mount type=volume,source=influxdb2-config,target=/etc/influxdb2 \
+  --env DOCKER_INFLUXDB_INIT_MODE=setup \
+  --env DOCKER_INFLUXDB_INIT_USERNAME=ADMIN_USERNAME \
+  --env DOCKER_INFLUXDB_INIT_PASSWORD=ADMIN_PASSWORD \
+  --env DOCKER_INFLUXDB_INIT_ORG=ORG_NAME \
+  --env DOCKER_INFLUXDB_INIT_BUCKET=BUCKET_NAME \
+  influxdb:2

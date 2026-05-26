@@ -1,0 +1,616 @@
+[
+    {
+        "id": "8e56d7d544d99517",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "828052f5400c681d",
+        "type": "mqtt in",
+        "z": "8e56d7d544d99517",
+        "name": "",
+        "topic": "PK/JZ",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "0511b09d9898d135",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 260,
+        "wires": [
+            [
+                "b1354cd1b9db6e4b",
+                "3ae1a5d8c716fc4a"
+            ]
+        ]
+    },
+    {
+        "id": "b1354cd1b9db6e4b",
+        "type": "json",
+        "z": "8e56d7d544d99517",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 250,
+        "y": 260,
+        "wires": [
+            [
+                "5b6342fe008609fe",
+                "8a1d3fa3bed0a6e2",
+                "ef793f11b0f5df32",
+                "5a295befa9f17043",
+                "f_hum_123"
+            ]
+        ]
+    },
+    {
+        "id": "5b6342fe008609fe",
+        "type": "function",
+        "z": "8e56d7d544d99517",
+        "name": "function 1",
+        "func": "\nlet dane;\n\ntry {\n    dane = typeof msg.payload === 'string' ? JSON.parse(msg.payload) : msg.payload;\n} catch (e) {\n    node.warn(\"To nie jest poprawny JSON: \" + msg.payload);\n    return null;\n}\n\nif (dane.temp_c === undefined) {\n    node.warn(\"Brak pola temp_c w JSONie!\");\n    return null;\n}\n\nmsg.payload = [\n    {\n        \n        temp_c: parseFloat(dane.temp_c),\n        press_hpa: parseFloat(dane.press_hpa),\n        hum_perc: dane.hum_perc !== undefined ? parseFloat(dane.hum_perc) : null\n    },\n    {\n        \n        zrodlo: \"esp32_pokoj\"\n    }\n];\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 40,
+        "wires": [
+            [
+                "25615c05ab0e157c",
+                "1f58bd3527735213"
+            ]
+        ]
+    },
+    {
+        "id": "1f58bd3527735213",
+        "type": "debug",
+        "z": "8e56d7d544d99517",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "8a1d3fa3bed0a6e2",
+        "type": "debug",
+        "z": "8e56d7d544d99517",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 460,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "ef793f11b0f5df32",
+        "type": "function",
+        "z": "8e56d7d544d99517",
+        "name": "function 2",
+        "func": "\nlet dane = msg.payload;\n\nwhile (typeof dane === 'string') {\n    try {\n        dane = JSON.parse(dane);\n    } catch (e) {\n        node.warn(\"Nie udało się sparsować JSONa: \" + dane);\n        return null;\n    }\n}\n\n\nif (dane.temp_c === undefined) {\n    \n    node.warn(\"Brak pola temp_c! Otrzymany ładunek to: \" + JSON.stringify(dane));\n    return null;\n}\n\nmsg.payload = parseFloat(dane.temp_c);\nmsg.topic = \"Temperatura (°C)\";\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 260,
+        "wires": [
+            [
+                "d309cedbfec523ed"
+            ]
+        ]
+    },
+    {
+        "id": "5a295befa9f17043",
+        "type": "function",
+        "z": "8e56d7d544d99517",
+        "name": "function 3",
+        "func": "\nlet dane = msg.payload;\n\nwhile (typeof dane === 'string') {\n    try {\n        dane = JSON.parse(dane);\n    } catch (e) {\n        node.warn(\"Nie udało się sparsować JSONa: \" + dane);\n        return null;\n    }\n}\n\n\nif (dane.press_hpa === undefined) {\n\n    node.warn(\"Brak pola press_hpa! Otrzymany ładunek to: \" + JSON.stringify(dane));\n    return null;\n}\n\nmsg.payload = parseFloat(dane.press_hpa);\nmsg.topic = \"Cisnienie (°HPA)\";\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 320,
+        "wires": [
+            [
+                "852e12743c9f1ce8"
+            ]
+        ]
+    },
+    {
+        "id": "f_hum_123",
+        "type": "function",
+        "z": "8e56d7d544d99517",
+        "name": "function Wilgotnosc",
+        "func": "\nlet dane = msg.payload;\n\nwhile (typeof dane === 'string') {\n    try {\n        dane = JSON.parse(dane);\n    } catch (e) {\n        node.warn(\"Nie udało się sparsować JSONa: \" + dane);\n        return null;\n    }\n}\n\nif (dane.hum_perc === undefined) {\n    return null;\n}\n\nmsg.payload = parseFloat(dane.hum_perc);\nmsg.topic = \"Wilgotność (%)\";\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 380,
+        "wires": [
+            [
+                "c_hum_456"
+            ]
+        ]
+    },
+    {
+        "id": "3ae1a5d8c716fc4a",
+        "type": "http request",
+        "z": "8e56d7d544d99517",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://api.open-meteo.com/v1/forecast?latitude=50.0614&longitude=19.9366&current=temperature_2m",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 290,
+        "y": 480,
+        "wires": [
+            [
+                "7b2c4cd4420b4218",
+                "edf2189c3b05ccb9"
+            ]
+        ]
+    },
+    {
+        "id": "7b2c4cd4420b4218",
+        "type": "function",
+        "z": "8e56d7d544d99517",
+        "name": "function 4",
+        "func": "let dane;\n\ntry {\n    dane = typeof msg.payload === 'string' ? JSON.parse(msg.payload) : msg.payload;\n} catch (e) {\n    node.warn(\"To nie jest poprawny JSON: \" + msg.payload);\n    return null;\n}\n\nif (!dane || !dane.current || dane.current.temperature_2m === undefined) {\n    node.warn(\"Brak pola temperature_2m w JSONie z API!\");\n    return null;\n}\n\nmsg.payload = [\n    {\n        temp_c: parseFloat(dane.current.temperature_2m),\n    },\n    {\n        zrodlo: \"api\"\n    }\n];\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 600,
+        "wires": [
+            [
+                "d6346349043f563a",
+                "5186f49e237cc0ac"
+            ]
+        ]
+    },
+    {
+        "id": "5186f49e237cc0ac",
+        "type": "debug",
+        "z": "8e56d7d544d99517",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 760,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "edf2189c3b05ccb9",
+        "type": "function",
+        "z": "8e56d7d544d99517",
+        "name": "function 5",
+        "func": "let dane;\n\ntry {\n    dane = (typeof msg.payload === \"string\") ? JSON.parse(msg.payload) : msg.payload;\n} catch (e) {\n    node.warn(\"To nie jest poprawny JSON: \" + msg.payload);\n    return null;\n}\n\nif (dane.current === undefined || dane.current.temperature_2m === undefined) {\n    node.warn(\"Brak pola temperature_2m w JSONie!\");\n    return null;\n}\n\n// Konwertuje temperaturę na ciąg tekstowy (np. \"21.3\")\nmsg.payload = parseFloat(dane.current.temperature_2m);\nmsg.topic = \"Temperatura API (°C)\";\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 480,
+        "wires": [
+            [
+                "d309cedbfec523ed"
+            ]
+        ]
+    },
+    {
+        "id": "25615c05ab0e157c",
+        "type": "influxdb out",
+        "z": "8e56d7d544d99517",
+        "influxdb": "7144bb6885a2e6c4",
+        "name": "",
+        "measurement": "weather",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "ORG_NAME",
+        "bucket": "BUCKET_NAME",
+        "x": 760,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "d6346349043f563a",
+        "type": "influxdb out",
+        "z": "8e56d7d544d99517",
+        "influxdb": "7144bb6885a2e6c4",
+        "name": "",
+        "measurement": "weather",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "ORG_NAME",
+        "bucket": "BUCKET_NAME",
+        "x": 840,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "d309cedbfec523ed",
+        "type": "ui-chart",
+        "z": "8e56d7d544d99517",
+        "group": "bccc29f428d42135",
+        "name": "",
+        "label": "chart",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 810,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "852e12743c9f1ce8",
+        "type": "ui-chart",
+        "z": "8e56d7d544d99517",
+        "group": "bccc29f428d42135",
+        "name": "",
+        "label": "chart",
+        "order": 2,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 630,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c_hum_456",
+        "type": "ui-chart",
+        "z": "8e56d7d544d99517",
+        "group": "bccc29f428d42135",
+        "name": "",
+        "label": "chart Wilgotnosc",
+        "order": 3,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 650,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "0511b09d9898d135",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.hivemq.com",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "7144bb6885a2e6c4",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": 8086,
+        "protocol": "http",
+        "database": "database",
+        "name": "",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://localhost:8086",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "bccc29f428d42135",
+        "type": "ui-group",
+        "name": "Group 1",
+        "page": "2bce9d8d1686d055",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false,
+        "groupType": "default"
+    },
+    {
+        "id": "2bce9d8d1686d055",
+        "type": "ui-page",
+        "name": "Page 1",
+        "ui": "7ebfcc82705e2cd7",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "9dcb110c79a072f0",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": 0,
+                "cols": 3
+            },
+            {
+                "name": "Tablet",
+                "px": 576,
+                "cols": 6
+            },
+            {
+                "name": "Small Desktop",
+                "px": 768,
+                "cols": 9
+            },
+            {
+                "name": "Desktop",
+                "px": 1024,
+                "cols": 12
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "7ebfcc82705e2cd7",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "9dcb110c79a072f0",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "83eb061e33bf2c59",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-influxdb": "0.7.0",
+            "@flowfuse/node-red-dashboard": "1.30.2"
+        }
+    }
+]
